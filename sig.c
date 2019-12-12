@@ -3,22 +3,26 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
-#include "timer.h"
 
-void hand(int signum)
-{ //signal handler
+int hold = 0;
+
+void handler(int signum)
+{ 
   printf("Hello World!\n");
-  incre_alarm();
+  hold = 1;
+  //exit(1); //exit after printing
 }
 
 int main(int argc, char * argv[])
 {
-  signal(SIGINT,handler); // Register handler to handle SIGINT.
-  signal(SIGALRM,hand); // Register handler to handle SIGALRM.
   while(1){
-    alarm(1); // Schedule a SIGALRM for 1 second.
-    sleep(1);
+    signal(SIGALRM,handler); //register handler to handle SIGALRM
+    alarm(1); //Schedule a SIGALRM for 1 second
+    while(!hold);
     printf("Turing was right!\n");
-  }
-  return 0; // Never reached.
+    hold=0;
+  };
+  
+  //busy wait for signal to be delivered
+  return 0; //never reached
 }
